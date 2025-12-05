@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 min-h-screen overflow-x-hidden;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(200, 220, 255, 0.4) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(230, 220, 255, 0.4) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(200, 220, 255, 0.4) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(230, 220, 255, 0.4) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
