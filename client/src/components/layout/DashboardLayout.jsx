@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Button from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const DashboardLayout = ({ children }) => {
     const { user, signOut } = useAuth();
     const location = useLocation();
+    const { theme, toggleTheme } = useTheme();
     const [showStore, setShowStore] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [showChat, setShowChat] = useState(false);
+    const [chatInput, setChatInput] = useState('');
+    const [chatMessages, setChatMessages] = useState([
+        { role: 'assistant', content: 'Hi! I’m your Docley AI assistant. How can I help today?' }
+    ]);
+    const [chatLoading, setChatLoading] = useState(false);
+    const [chatError, setChatError] = useState(null);
 
     const isActive = (path) => {
         return location.pathname === path ? 'bg-sky-100 text-sky-700' : 'text-gray-600 hover:bg-gray-100';
@@ -55,6 +64,52 @@ const DashboardLayout = ({ children }) => {
             href: GPT_LINKS.voiceGen,
         }
     ];
+
+    const sendChatMessage = async () => {
+        if (!chatInput.trim()) return;
+        const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        if (!apiKey) {
+            setChatError('Missing OpenAI API key. Please add VITE_OPENAI_API_KEY to .env');
+            return;
+        }
+
+        const userMessage = { role: 'user', content: chatInput.trim() };
+        const updated = [...chatMessages, userMessage];
+        setChatMessages(updated);
+        setChatInput('');
+        setChatLoading(true);
+        setChatError(null);
+
+        try {
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        { role: 'system', content: 'You are Docley AI assistant. Be concise, helpful, and professional.' },
+                        ...updated.map(m => ({ role: m.role, content: m.content })),
+                    ],
+                    temperature: 0.6,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Request failed');
+            }
+
+            const data = await res.json();
+            const reply = data.choices?.[0]?.message?.content || 'Something went wrong, please try again.';
+            setChatMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+        } catch (err) {
+            setChatError('Unable to get a reply right now. Please try again.');
+        } finally {
+            setChatLoading(false);
+        }
+    };
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-50">
@@ -117,7 +172,28 @@ const DashboardLayout = ({ children }) => {
                     </Link>
                 </nav>
 
-                <div className="px-4 mb-4">
+                <div className="px-4 mb-4 space-y-3">
+                    <div className="rounded-xl border border-indigo-100 bg-white shadow-sm p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 1.343-3 3 0 1.657 1.343 3 3 3s3-1.343 3-3c0-1.657-1.343-3-3-3z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.4 15c.37-.62.6-1.34.6-2.12 0-2.48-2.02-4.5-4.5-4.5-.51 0-1 .08-1.46.24C13.16 6.12 11.69 5 10 5 7.52 5 5.5 7.02 5.5 9.5c0 .44.06.87.18 1.27C4.01 11.11 3 12.43 3 14c0 1.93 1.57 3.5 3.5 3.5h11c1.1 0 2-.9 2-2 0-.66-.32-1.25-.82-1.64z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-gray-900">Chat with AI</p>
+                                <p className="text-xs text-gray-500">Ask anything, get instant answers.</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowChat(true)}
+                            className="w-full py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-lg transition-colors"
+                        >
+                            Open chat
+                        </button>
+                    </div>
+
                     <div className="rounded-xl border border-sky-100 bg-white shadow-sm p-4">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
@@ -211,12 +287,23 @@ const DashboardLayout = ({ children }) => {
                                     </Link>
                                     <button
                                         className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-sky-50 text-left"
-                                        onClick={() => setShowSettings(false)}
+                                        onClick={() => { toggleTheme(); setShowSettings(false); }}
                                     >
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m8-9h1M3 12H2m15.364-6.364l.707.707M6.636 17.364l-.707.707m0-12.728l.707.707M17.364 17.364l.707.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Dark mode (coming soon)
+                                        {theme === 'dark' ? (
+                                            <>
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m8-9h-2M3 12H2m15.364-6.364l.707.707M6.636 17.364l-.707.707m0-12.728l.707.707M17.364 17.364l.707.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                Light mode
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                                                </svg>
+                                                Dark mode
+                                            </>
+                                        )}
                                     </button>
                                     <button
                                         className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-sky-50 text-left"
@@ -290,6 +377,128 @@ const DashboardLayout = ({ children }) => {
                                     </div>
                                 </a>
                             ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Chat Overlay */}
+            {showChat && (
+                <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 backdrop-blur-sm px-4 py-10">
+                    <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900">Chat with Docley AI</h3>
+                                <p className="text-sm text-gray-600">Unlimited chat, smart AI, and file-friendly.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowChat(false)}
+                                className="p-2 rounded-full hover:bg-gray-100 text-gray-500"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="px-6 py-4 bg-white border-b border-gray-100">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">Unlimited Chat</p>
+                                        <p className="text-xs text-gray-500">No rate limits.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v18m9-9H3" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">Intelligent AI</p>
+                                        <p className="text-xs text-gray-500">State-of-the-art models.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4h16v4H4zM4 12h16v8H4z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">File uploads</p>
+                                        <p className="text-xs text-gray-500">Handle 1000+ page files.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="px-6 py-4 space-y-3 border-b border-gray-100">
+                            <p className="text-sm font-semibold text-gray-800">Try these prompts:</p>
+                            <div className="flex flex-col gap-2">
+                                {[
+                                    'What can you do?',
+                                    'Write me a story about a lonely elephant',
+                                    'Tell me about the history of the internet',
+                                ].map(prompt => (
+                                    <button
+                                        key={prompt}
+                                        onClick={() => setChatInput(prompt)}
+                                        className="w-full text-left px-3 py-2 rounded-lg border border-gray-200 hover:border-sky-200 hover:bg-sky-50 text-sm text-gray-700 transition-colors"
+                                    >
+                                        {prompt}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-auto px-6 py-4 space-y-3 bg-white">
+                            {chatMessages.map((msg, idx) => (
+                                <div key={idx} className={`flex ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
+                                    <div
+                                        className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                                            msg.role === 'assistant'
+                                                ? 'bg-sky-50 text-gray-800'
+                                                : 'bg-sky-600 text-white'
+                                        }`}
+                                    >
+                                        {msg.content}
+                                    </div>
+                                </div>
+                            ))}
+                            {chatError && (
+                                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                    {chatError}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-100 bg-white">
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 relative">
+                                    <textarea
+                                        rows="2"
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        placeholder="Type a message..."
+                                        className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-500 resize-none"
+                                    />
+                                </div>
+                                <Button
+                                    size="sm"
+                                    disabled={chatLoading}
+                                    onClick={sendChatMessage}
+                                    className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 h-11 flex items-center gap-2"
+                                >
+                                    {chatLoading ? 'Sending...' : 'Send'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
