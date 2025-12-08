@@ -15,9 +15,9 @@ const Header = () => {
                     <span className="text-xl font-bold text-gray-900">Docley</span>
                 </Link>
                 <nav className="hidden md:flex items-center space-x-8">
-                    <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Features</a>
-                    <a href="#templates" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Templates</a>
-                    <a href="#pricing" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Pricing</a>
+                    <a href="/#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Features</a>
+                    <a href="/#templates" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Templates</a>
+                    <Link to="/pricing" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Pricing</Link>
                 </nav>
                 <div className="flex items-center gap-4">
                     <Link to="/login" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
