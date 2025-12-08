@@ -8,7 +8,12 @@ const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' or 'annually'
   const [userType, setUserType] = useState('casual'); // 'casual' or 'professional'
 
-  const plans = [
+  // Determine recommended plan based on user type
+  const getRecommendedPlan = () => {
+    return userType === 'professional' ? 'Premium' : 'Standard';
+  };
+
+  const basePlans = [
     {
       name: 'Starter',
       price: 'Free',
@@ -27,7 +32,8 @@ const Pricing = () => {
       cta: 'Get Started for Free!',
       ctaVariant: 'primary',
       currentPlan: true,
-      trial: false
+      trial: false,
+      planId: 'starter'
     },
     {
       name: 'Standard',
@@ -50,14 +56,15 @@ const Pricing = () => {
       cta: 'Try for Free',
       ctaVariant: 'primary',
       currentPlan: false,
-      trial: true
+      trial: true,
+      planId: 'standard'
     },
     {
       name: 'Premium',
       price: billingCycle === 'monthly' ? '$12' : '$120',
       duration: billingCycle === 'monthly' ? 'Monthly' : 'Annually',
       icon: '⭐',
-      badge: 'RECOMMENDED',
+      badge: null, // Will be set dynamically based on userType
       features: [
         'Max Intelligence AI (ChatGPT 5, Claude Sonnet 4, Gemini 2.5 Pro, Claude Opus 4.1)',
         'Higher quality AI responses (Larger context windows, thinking budget, and other upgrades)',
@@ -73,9 +80,16 @@ const Pricing = () => {
       cta: 'Try for Free',
       ctaVariant: 'primary',
       currentPlan: false,
-      trial: true
+      trial: true,
+      planId: 'premium'
     }
   ];
+
+  // Apply recommended badge based on user type
+  const plans = basePlans.map(plan => ({
+    ...plan,
+    badge: plan.name === getRecommendedPlan() ? 'RECOMMENDED' : null
+  }));
 
   return (
     <Layout>
@@ -212,7 +226,14 @@ const Pricing = () => {
                   )}
 
                   {/* CTA Button */}
-                  <Link to={plan.price === 'Free' ? '/register' : '/register'} className="mb-6">
+                  <Link 
+                    to={
+                      plan.price === 'Free' 
+                        ? '/register' 
+                        : `/register?plan=${plan.planId}&billing=${billingCycle}`
+                    } 
+                    className="mb-6"
+                  >
                     <Button
                       className={`w-full ${
                         plan.badge === 'RECOMMENDED'
