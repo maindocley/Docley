@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Button from './components/ui/Button';
@@ -12,7 +12,75 @@ import ResetPassword from './pages/auth/ResetPassword';
 import CheckEmail from './pages/auth/CheckEmail';
 import Dashboard from './pages/dashboard/Dashboard';
 import Editor from './pages/editor/Editor';
+import Pricing from './pages/pricing/Pricing';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+
+const FAQAccordion = () => {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const faqs = [
+    {
+      question: 'How does AI document generation work?',
+      answer: 'Docley uses advanced AI models (ChatGPT, Claude, and Gemini) to understand your prompts and generate professional documents, presentations, and spreadsheets. Simply describe what you need, and our AI creates high-quality content in seconds.'
+    },
+    {
+      question: 'What file formats can I export?',
+      answer: 'You can export your documents in multiple formats including PDF, DOCX, and PPTX. All exports are ready for sharing, printing, or further editing in your preferred software.'
+    },
+    {
+      question: 'Is there a free plan available?',
+      answer: 'Yes! We offer a free forever plan that includes unlimited files, unlimited AI messages, and access to all basic features. You can upgrade anytime to unlock premium features and higher limits.'
+    },
+    {
+      question: 'Can I use Docley for commercial purposes?',
+      answer: 'Yes, depending on your plan. The free plan requires attribution for commercial use. Standard and Premium plans include commercial licenses without attribution requirements.'
+    },
+    {
+      question: 'How secure is my data?',
+      answer: 'We take security seriously. All your documents and data are encrypted in transit and at rest. We use industry-standard security practices and comply with data protection regulations. Your data is never shared with third parties.'
+    },
+    {
+      question: 'Can I cancel my subscription anytime?',
+      answer: 'Absolutely! You can cancel your subscription at any time. There are no long-term contracts or cancellation fees. Your access will continue until the end of your current billing period.'
+    },
+    {
+      question: 'Do you offer team or enterprise plans?',
+      answer: 'Yes, we offer custom enterprise solutions for teams and organizations. Contact our sales team to discuss your specific needs, volume discounts, and dedicated support options.'
+    },
+    {
+      question: 'What AI models are available?',
+      answer: 'We support multiple AI models including ChatGPT 5, Claude Sonnet 4, Claude Opus 4.1, and Gemini 2.5 Pro. Higher-tier plans give you access to more advanced models with better intelligence and larger context windows.'
+    }
+  ];
+
+  return (
+    <div className="space-y-4">
+      {faqs.map((faq, index) => (
+        <div key={index} className="border border-gray-200 rounded-xl overflow-hidden hover:border-orange-300 transition-colors">
+          <button
+            className="w-full px-6 py-5 text-left flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
+            onClick={() => setOpenIndex(openIndex === index ? null : index)}
+          >
+            <span className="font-semibold text-gray-900 pr-8">{faq.question}</span>
+            <svg
+              className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform ${openIndex === index ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {openIndex === index && (
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Home = () => (
   <Layout>
@@ -210,6 +278,98 @@ const Home = () => (
       </div>
     </section>
 
+    {/* Stats Section */}
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-pink-50 to-teal-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Trusted by Thousands of Creators
+          </h2>
+          <p className="text-xl text-gray-600">
+            Join a growing community of professionals who are transforming their workflow
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          {[
+            { number: '50K+', label: 'Active Users' },
+            { number: '1M+', label: 'Documents Created' },
+            { number: '99.9%', label: 'Uptime' },
+            { number: '4.9/5', label: 'User Rating' },
+          ].map((stat, idx) => (
+            <div key={idx} className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-orange-600 mb-2">{stat.number}</div>
+              <div className="text-gray-600 font-medium">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Testimonials */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              name: 'Sarah Chen',
+              role: 'Marketing Director',
+              company: 'TechCorp',
+              content: 'Docley has completely transformed how we create presentations. What used to take hours now takes minutes.',
+              avatar: 'SC'
+            },
+            {
+              name: 'Michael Rodriguez',
+              role: 'Content Creator',
+              company: 'Freelance',
+              content: 'The AI assistant is incredibly smart. It understands context and creates professional content every time.',
+              avatar: 'MR'
+            },
+            {
+              name: 'Emily Watson',
+              role: 'Business Analyst',
+              company: 'DataFlow Inc',
+              content: 'Best investment we made this year. The time saved on document generation is invaluable.',
+              avatar: 'EW'
+            },
+          ].map((testimonial, idx) => (
+            <Card key={idx} className="p-6 bg-white/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                  {testimonial.avatar}
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                  <div className="text-sm text-gray-600">{testimonial.role} at {testimonial.company}</div>
+                </div>
+              </div>
+              <p className="text-gray-700 italic">"{testimonial.content}"</p>
+              <div className="flex gap-1 mt-4">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* FAQ Section */}
+    <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">FAQ</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-4 mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-gray-600">
+            Everything you need to know about Docley
+          </p>
+        </div>
+
+        <FAQAccordion />
+      </div>
+    </section>
+
     {/* Final CTA Section */}
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-4xl mx-auto text-center">
@@ -225,11 +385,11 @@ const Home = () => (
               Start Creating Free
             </Button>
           </Link>
-          <a href="#pricing">
+          <Link to="/pricing">
             <Button variant="secondary" size="lg" className="px-8 py-4 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400">
               View Pricing
             </Button>
-          </a>
+          </Link>
         </div>
         <p className="text-sm text-gray-500">No credit card required - Free forever plan available.</p>
       </div>
@@ -254,9 +414,9 @@ const Home = () => (
           <div>
             <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
             <ul className="space-y-2">
-              <li><a href="#features" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Features</a></li>
-              <li><a href="#templates" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Templates</a></li>
-              <li><a href="#pricing" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Pricing</a></li>
+              <li><a href="/#features" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Features</a></li>
+              <li><a href="/#templates" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Templates</a></li>
+              <li><Link to="/pricing" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Pricing</Link></li>
               <li><Link to="/dashboard" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Dashboard</Link></li>
             </ul>
           </div>
@@ -319,6 +479,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/check-email" element={<CheckEmail />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route
             path="/dashboard/*"
             element={
