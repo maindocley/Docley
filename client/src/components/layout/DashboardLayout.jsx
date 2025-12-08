@@ -8,16 +8,16 @@ const DashboardLayout = ({ children }) => {
     const location = useLocation();
 
     const isActive = (path) => {
-        return location.pathname === path ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50';
+        return location.pathname === path ? 'bg-sky-100 text-sky-700' : 'text-gray-600 hover:bg-gray-100';
     };
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-50">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/70 flex flex-col shadow-md">
                 <div className="p-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center shadow-lg shadow-sky-300/50">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
@@ -27,14 +27,15 @@ const DashboardLayout = ({ children }) => {
                 </div>
 
                 <div className="px-4 mb-6">
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-medium">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-sky-50 border border-sky-100 shadow-sm">
+                        <div className="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {user?.email?.[0].toUpperCase() || 'U'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
                                 {user?.user_metadata?.first_name || 'User'} {user?.user_metadata?.last_name || ''}
                             </p>
+                            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                         </div>
                         <button onClick={signOut} className="text-gray-400 hover:text-gray-600">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,11 +72,11 @@ const DashboardLayout = ({ children }) => {
                     </Link>
                 </nav>
 
-                <div className="p-4 border-t border-gray-200">
-                    <div className="bg-primary-50 rounded-xl p-4">
-                        <h4 className="text-sm font-semibold text-primary-900 mb-1">Send Feedback</h4>
-                        <p className="text-xs text-primary-700 mb-3">Help us improve Docley with your suggestions!</p>
-                        <button className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-medium rounded-lg transition-colors">
+                <div className="p-4 border-t border-gray-200/70">
+                    <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                        <h4 className="text-sm font-semibold text-sky-900 mb-1">Send Feedback</h4>
+                        <p className="text-xs text-sky-700 mb-3">Help us improve Docley with your suggestions!</p>
+                        <button className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
                             Send Feedback
                         </button>
                     </div>
@@ -85,18 +86,18 @@ const DashboardLayout = ({ children }) => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-gray-200/70 flex items-center justify-between px-6 shadow-sm">
                     <div className="flex items-center gap-4">
                         <Link to="/editor">
-                            <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white gap-2">
+                            <Button size="sm" className="bg-sky-600 hover:bg-sky-700 text-white gap-2 shadow-md shadow-sky-400/40">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                                 </svg>
                                 New Document
                             </Button>
                         </Link>
-                        <div className="h-8 w-px bg-gray-200 mx-2"></div>
-                        <div className="flex items-center gap-2 text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                        <div className="h-8 w-px bg-gray-200/70 mx-2"></div>
+                        <div className="flex items-center gap-2 text-gray-600 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
@@ -111,8 +112,8 @@ const DashboardLayout = ({ children }) => {
                             </svg>
                             <input
                                 type="text"
-                                placeholder="search documents.."
-                                className="pl-10 pr-4 py-2 w-64 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                                placeholder="Search documents..."
+                                className="pl-10 pr-4 py-2 w-64 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-500 shadow-sm"
                             />
                         </div>
                     </div>
